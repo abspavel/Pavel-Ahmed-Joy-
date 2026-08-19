@@ -2,8 +2,12 @@ import { FadeIn } from '../components/FadeIn';
 import { AnimatedText } from '../components/AnimatedText';
 import { ContactButton } from '../components/ContactButton';
 import { RoundCarousel } from '../components/RoundCarousel';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 export function AboutSection() {
+  const { data, loading } = usePortfolioData('about_content');
+  const about = data?.[0] || { heading: 'About me', paragraph_text: "I'm Pavel Ahmed Joy, a web developer focused on building clean, responsive, and user-friendly websites. I truly enjoy turning ideas into fast, functional, and well-crafted digital experiences. Let's build something incredible together!" };
+
   return (
     <section id="about" className="min-h-screen relative flex flex-col items-center justify-center px-5 sm:px-8 md:px-10 py-20 overflow-hidden">
       
@@ -43,13 +47,13 @@ export function AboutSection() {
       <div className="relative z-10 flex flex-col items-center">
         <FadeIn delay={0} y={40}>
           <h2 className="hero-heading font-black uppercase leading-none tracking-tight text-center text-[clamp(3rem,12vw,160px)]">
-            About me
+            {about.heading}
           </h2>
         </FadeIn>
 
         <div className="mt-10 sm:mt-14 md:mt-16 text-center">
           <AnimatedText 
-            text="With more than five years of experience in design, i focus on branding, web design, and user experience, i truly enjoy working with businesses that aim to stand out and present their best image. Let's build something incredible together!"
+            text={about.paragraph_text}
             className="text-[#D7E2EA] font-medium leading-relaxed max-w-[560px] text-[clamp(1rem,2vw,1.35rem)]"
           />
         </div>

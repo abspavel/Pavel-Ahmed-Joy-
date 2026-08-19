@@ -25,8 +25,8 @@ const gifs = [
   "https://motionsites.ai/assets/hero-celestia-preview-0yO3jXO8.gif"
 ];
 
-const row1Images = [...gifs.slice(0, 11), ...gifs.slice(0, 11), ...gifs.slice(0, 11)];
-const row2Images = [...gifs.slice(11), ...gifs.slice(11), ...gifs.slice(11)];
+const row1Original = gifs.slice(0, 11);
+const row2Original = gifs.slice(11);
 
 function MarqueeImage({ src, index }: { src: string; index: number }) {
   const [loaded, setLoaded] = useState(false);
@@ -47,15 +47,45 @@ export function MarqueeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   
-  const [layoutMeasurements, setLayoutMeasurements] = useState({ top: 0, windowHeight: 0 });
+  const [layoutMeasurements, setLayoutMeasurements] = useState({ 
+    top: 0, 
+    windowHeight: 0,
+    row1SetWidth: 1000,
+    row2SetWidth: 1000,
+    repeats1: 3,
+    repeats2: 3
+  });
 
   useEffect(() => {
     let animationFrameId: number;
     const updateMeasurements = () => {
       if (sectionRef.current) {
+        const screenW = window.innerWidth;
+        
+        // Calculate tile width + gap per breakpoint
+        let tileW = 160, gap = 8;
+        if (screenW >= 768) {
+          tileW = 420; gap = 12;
+        } else if (screenW >= 640) {
+          tileW = 280; gap = 8;
+        }
+
+        const r1SetWidth = (tileW + gap) * row1Original.length;
+        const r2SetWidth = (tileW + gap) * row2Original.length;
+
+        // Dynamically calculate repeats so track width is >= 3x screen width
+        // Add 2 extra sets for safe modulo buffering
+        const requiredTrackWidth = screenW * 3;
+        const rep1 = Math.max(3, Math.ceil(requiredTrackWidth / r1SetWidth) + 2);
+        const rep2 = Math.max(3, Math.ceil(requiredTrackWidth / r2SetWidth) + 2);
+
         setLayoutMeasurements({
           top: sectionRef.current.offsetTop,
           windowHeight: window.innerHeight,
+          row1SetWidth: r1SetWidth,
+          row2SetWidth: r2SetWidth,
+          repeats1: rep1,
+          repeats2: rep2
         });
       }
     };
@@ -84,8 +114,23 @@ export function MarqueeSection() {
     mass: 0.5
   });
 
-  const row1Transform = useTransform(smoothScrollOffset, (offset) => `${offset - 200}px`);
-  const row2Transform = useTransform(smoothScrollOffset, (offset) => `${-(offset - 200)}px`);
+  const row1Transform = useTransform(smoothScrollOffset, (offset) => {
+    const { row1SetWidth } = layoutMeasurements;
+    // Ensure safe positive modulo for seamless reset
+    const modOffset = ((offset % row1SetWidth) + row1SetWidth) % row1SetWidth;
+    // Row 1 moves right -> shift starting position left by 1 full set
+    return `${modOffset - row1SetWidth}px`;
+  });
+
+  const row2Transform = useTransform(smoothScrollOffset, (offset) => {
+    const { row2SetWidth } = layoutMeasurements;
+    const modOffset = ((offset % row2SetWidth) + row2SetWidth) % row2SetWidth;
+    // Row 2 moves left -> starts at 0, shifts negative up to 1 full set
+    return `${-modOffset}px`;
+  });
+
+  const row1Images = Array(layoutMeasurements.repeats1).fill(row1Original).flat();
+  const row2Images = Array(layoutMeasurements.repeats2).fill(row2Original).flat();
 
   return (
     <section 
@@ -97,7 +142,7 @@ export function MarqueeSection() {
       }}
     >
       <motion.div 
-        className="flex gap-2 md:gap-3 will-change-transform"
+        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
         style={{ x: row1Transform }}
       >
         {row1Images.map((src, i) => (
@@ -106,7 +151,7 @@ export function MarqueeSection() {
       </motion.div>
 
       <motion.div 
-        className="flex gap-2 md:gap-3 will-change-transform"
+        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
         style={{ x: row2Transform }}
       >
         {row2Images.map((src, i) => (

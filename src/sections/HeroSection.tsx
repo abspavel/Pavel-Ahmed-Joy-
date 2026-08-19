@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Magnet } from '../components/Magnet';
 import { ContactButton } from '../components/ContactButton';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
-function AnimatedHeroTitle() {
-  const text1 = "Hi, i'm ";
-  const text2 = "joy";
+function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: string, text2?: string }) {
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,7 +62,7 @@ function AnimatedHeroTitle() {
   );
 }
 
-function EnhancedPortrait() {
+function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
   const { scrollY } = useScroll();
   
   // Parallax + fade as user scrolls out of the hero section
@@ -115,7 +115,7 @@ function EnhancedPortrait() {
           className="w-full h-full will-change-transform"
         >
           <img
-            src="/joy-photo-transparent.png"
+            src={imageUrl}
             alt="Joy - 3D Creator"
             className="w-full h-auto object-contain pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
             style={{
@@ -132,21 +132,41 @@ function EnhancedPortrait() {
 }
 
 export function HeroSection() {
+  const { data, loading } = usePortfolioData('hero_content');
+  const heroData = data?.[0] || {};
+  
+  const portraitUrl = (heroData.portrait_image_url && heroData.portrait_image_url.trim() !== "") 
+    ? heroData.portrait_image_url 
+    : "/joy-photo-transparent.png";
+    
+  const taglineText = (heroData.tagline_text && heroData.tagline_text.trim() !== "")
+    ? heroData.tagline_text
+    : "BUILDING CLEAN, MODERN, AND HIGH-PERFORMING WEBSITES THAT LEAVE AN IMPRESSION";
+    
+  const heading1 = heroData.heading_line1 || "Hi, i'm ";
+  const heading2 = heroData.heading_line2 || "joy";
+
   return (
     <section className="h-screen flex flex-col overflow-x-clip relative">
       {/* Navbar */}
       <FadeIn delay={0} y={-20} as="nav" className="flex justify-between items-center px-6 md:px-10 pt-6 md:pt-8 relative z-40">
-        <div className="text-xl md:text-2xl font-bold tracking-tighter text-[#D7E2EA]">JOY</div>
-        <div className="flex gap-4 sm:gap-8 md:gap-12">
-          {['About', 'Projects', 'Contact'].map((item) => (
+        <Link to="/" className="text-xl md:text-2xl font-bold tracking-tighter text-[#D7E2EA]">JOY</Link>
+        <div className="flex gap-4 sm:gap-8 md:gap-12 items-center">
+          {['About', 'Projects'].map((item) => (
             <a
               key={item}
-              href={`#${item.toLowerCase()}`}
+              href={`/#${item.toLowerCase()}`}
               className="text-[#D7E2EA] font-medium uppercase tracking-wider text-xs sm:text-sm md:text-lg lg:text-[1.2rem] hover:opacity-70 transition-opacity duration-200"
             >
               {item}
             </a>
           ))}
+          <Link
+            to="/contact"
+            className="text-[#D7E2EA] font-medium uppercase tracking-wider text-xs sm:text-sm md:text-lg lg:text-[1.2rem] hover:opacity-70 transition-opacity duration-200"
+          >
+            CONTACT
+          </Link>
         </div>
       </FadeIn>
 
@@ -160,7 +180,7 @@ export function HeroSection() {
         </FadeIn>
         
         <div className="w-full relative z-10">
-          <AnimatedHeroTitle />
+          <AnimatedHeroTitle text1={heading1} text2={heading2} />
         </div>
       </div>
 
@@ -171,7 +191,7 @@ export function HeroSection() {
         className="absolute left-1/2 -translate-x-1/2 z-10 w-[280px] sm:w-[360px] md:w-[440px] lg:w-[520px] top-1/2 -translate-y-1/2 sm:top-auto sm:translate-y-0 sm:bottom-0 pointer-events-auto"
       >
         <FadeIn delay={0.6} y={30}>
-          <EnhancedPortrait />
+          <EnhancedPortrait imageUrl={portraitUrl} />
         </FadeIn>
       </Magnet>
 
@@ -179,7 +199,7 @@ export function HeroSection() {
       <div className="flex justify-between items-end pb-7 sm:pb-8 md:pb-10 px-6 md:px-10 relative z-20 pointer-events-auto">
         <FadeIn delay={0.35} y={20} className="max-w-[160px] sm:max-w-[220px] md:max-w-[260px]">
           <p className="text-[#D7E2EA] font-light uppercase tracking-wide leading-snug text-[clamp(0.75rem,1.4vw,1.5rem)]">
-            a 3d creator driven by crafting striking and unforgettable projects
+            {taglineText}
           </p>
         </FadeIn>
         

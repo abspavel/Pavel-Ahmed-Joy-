@@ -1,50 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'motion/react';
 import { LiveProjectButton } from '../components/LiveProjectButton';
-
-const projects = [
-  {
-    num: "01",
-    category: "Client",
-    name: "Nextlevel Studio",
-    techStack: "Cinema4D, Octane, React",
-    role: "Lead 3D Designer",
-    year: "2025",
-    images: {
-      leftTop: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055344_5eff02e0-87a5-41ce-b64f-eb08da8f33db.png&w=1280&q=85",
-      leftBottom: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055431_11d841fd-8b41-46a5-82e4-b04f2407a7d8.png&w=1280&q=85",
-      right: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055451_e317bf2d-28d4-48cc-86b0-6f72f25b6327.png&w=1280&q=85"
-    }
-  },
-  {
-    num: "02",
-    category: "Personal",
-    name: "Aura Brand Identity",
-    techStack: "Blender, Figma, WebGL",
-    role: "Art Director",
-    year: "2024",
-    images: {
-      leftTop: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055654_911201c5-36d9-4bc6-bac7-331adfce159f.png&w=1280&q=85",
-      leftBottom: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055723_5ceda0b8-d9c2-4665-b2e3-83ba19ba76d1.png&w=1280&q=85",
-      right: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055753_adc5dcbd-a8e6-49c0-b43a-9b030d835cea.png&w=1280&q=85"
-    }
-  },
-  {
-    num: "03",
-    category: "Client",
-    name: "Solaris Digital",
-    techStack: "Maya, Unreal Engine 5",
-    role: "Motion Designer",
-    year: "2025",
-    images: {
-      leftTop: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055759_963cfb0b-4bd1-4b0f-9d0a-09bd6cf95b2f.png&w=1280&q=85",
-      leftBottom: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_060108_438f781a-9846-4dcc-89ab-c4e6cb830f5b.png&w=1280&q=85",
-      right: "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055818_9d062121-ad7e-46b9-999a-1a6a692ef1ee.png&w=1280&q=85"
-    }
-  }
-];
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 export function ProjectsSection() {
+  const { data, loading } = usePortfolioData('projects');
+  const projects = data || [];
+
   return (
     <section id="projects" className="bg-[#0C0C0C] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative pt-20 sm:pt-24 md:pt-32 pb-40">
       <h2 className="hero-heading font-black uppercase text-center text-[clamp(3rem,12vw,160px)] mb-16 sm:mb-20 md:mb-28 leading-none">
@@ -52,22 +14,26 @@ export function ProjectsSection() {
       </h2>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col">
-        {projects.map((project, i) => {
-          return (
+        {!loading && projects.length === 0 ? (
+          <div className="text-[#D7E2EA]/50 text-center py-20 font-medium tracking-wide">
+            No projects yet.
+          </div>
+        ) : (
+          projects.map((project, i) => (
             <ProjectCard 
-              key={project.num} 
+              key={project.id || project.project_number} 
               project={project} 
               index={i} 
               totalCards={projects.length} 
             />
-          );
-        })}
+          ))
+        )}
       </div>
     </section>
   );
 }
 
-const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalCards: number }> = ({ project, index, totalCards }) => {
+const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }> = ({ project, index, totalCards }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   
@@ -151,7 +117,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalC
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-6 md:gap-10">
-              <span className="font-black text-[#D7E2EA] text-[clamp(2.5rem,6vw,80px)] leading-none">{project.num}</span>
+              <span className="font-black text-[#D7E2EA] text-[clamp(2.5rem,6vw,80px)] leading-none">{project.project_number}</span>
               <div className="flex flex-col gap-1">
                 <span className="text-[#D7E2EA]/60 uppercase tracking-wider text-sm font-medium">{project.category}</span>
                 <h3 className="text-[#D7E2EA] text-[clamp(1.5rem,3vw,2.5rem)] uppercase font-medium leading-none">{project.name}</h3>
@@ -176,7 +142,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalC
                   className="absolute inset-0 bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-full flex flex-col items-center justify-center text-[#D7E2EA] uppercase tracking-widest leading-tight z-0"
                   style={{ transform: 'rotateX(180deg)', backfaceVisibility: 'hidden' }}
                 >
-                  <span className="text-[10px] sm:text-xs font-bold px-2">{project.year} | {project.role}</span>
+                  <span className="text-[10px] sm:text-xs font-bold px-2">{project.category}</span>
                 </div>
               </motion.div>
             </div>
@@ -194,7 +160,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalC
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <motion.img style={{ y: y1, scale: 1.15 }} src={project.images.leftTop} alt={`${project.name} preview 1`} className="w-full h-full object-cover" />
+                  <motion.img style={{ y: y1, scale: 1.15 }} src={project.col1_image1_url} alt={`${project.name} preview 1`} className="w-full h-full object-cover" />
                 </motion.div>
               </div>
 
@@ -206,7 +172,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalC
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <motion.img style={{ y: y2, scale: 1.15 }} src={project.images.leftBottom} alt={`${project.name} preview 2`} className="w-full h-full object-cover" />
+                  <motion.img style={{ y: y2, scale: 1.15 }} src={project.col1_image2_url} alt={`${project.name} preview 2`} className="w-full h-full object-cover" />
                 </motion.div>
               </div>
 
@@ -220,7 +186,7 @@ const ProjectCard: React.FC<{ project: typeof projects[0], index: number, totalC
                 transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
                 className="absolute inset-0 w-full h-full"
               >
-                <motion.img style={{ y: y3, scale: 1.1 }} src={project.images.right} alt={`${project.name} preview 3`} className="w-full h-full object-cover" />
+                <motion.img style={{ y: y3, scale: 1.1 }} src={project.col2_image_url} alt={`${project.name} preview 3`} className="w-full h-full object-cover" />
               </motion.div>
             </div>
             

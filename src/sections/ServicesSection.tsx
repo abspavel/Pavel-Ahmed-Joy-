@@ -1,34 +1,45 @@
+import { Link } from 'react-router-dom';
 import { FadeIn } from '../components/FadeIn';
+import { usePortfolioData } from '../hooks/usePortfolioData';
+import { ArrowUpRight } from 'lucide-react';
 
-const services = [
+const fallbackServices = [
   {
-    num: "01",
-    name: "3D Modeling",
-    desc: "Creation of detailed objects, characters, or environments tailored to specific client needs, ideal for games, products, and visualizations."
-  },
-  {
-    num: "02",
-    name: "Rendering",
-    desc: "High-quality, photorealistic renders that showcase designs with custom lighting, textures, and materials to bring concepts to life."
-  },
-  {
-    num: "03",
-    name: "Motion Design",
-    desc: "Dynamic animations and motion graphics that add energy and storytelling to brands, products, and digital experiences."
-  },
-  {
-    num: "04",
-    name: "Branding",
-    desc: "Crafting cohesive visual identities -- from logos to full brand systems -- that communicate a clear and memorable presence."
-  },
-  {
-    num: "05",
+    number: "01",
     name: "Web Design",
-    desc: "Designing clean, modern, and conversion-focused websites with attention to layout, typography, and user experience."
+    slug: "web-design",
+    description: "Designing clean, modern, and conversion-focused websites with attention to layout, typography, and user experience."
+  },
+  {
+    number: "02",
+    name: "Frontend Development",
+    slug: "frontend-development",
+    description: "Building fast, responsive, and interactive user interfaces using modern frameworks like React and Next.js."
+  },
+  {
+    number: "03",
+    name: "Backend & API Development",
+    slug: "backend-api-development",
+    description: "Developing reliable server-side logic, databases, and APIs that power dynamic, data-driven websites and applications."
+  },
+  {
+    number: "04",
+    name: "E-commerce Development",
+    slug: "ecommerce-development",
+    description: "Building secure, scalable online stores with smooth checkout flows and easy content management."
+  },
+  {
+    number: "05",
+    name: "Website Maintenance & Optimization",
+    slug: "website-maintenance-optimization",
+    description: "Ongoing updates, bug fixes, and performance/SEO optimization to keep websites fast, secure, and search-friendly."
   }
 ];
 
 export function ServicesSection() {
+  const { data, loading } = usePortfolioData('services');
+  const services = data && data.length > 0 ? data : fallbackServices;
+
   return (
     <section id="services" className="bg-[#FFFFFF] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] px-5 sm:px-8 md:px-10 py-20 sm:py-24 md:py-32">
       <FadeIn y={30}>
@@ -40,21 +51,28 @@ export function ServicesSection() {
       <div className="max-w-5xl mx-auto flex flex-col">
         {services.map((service, index) => (
           <FadeIn 
-            key={service.num} 
-            delay={index * 0.1} 
-            className="flex flex-col md:flex-row items-start md:items-center py-8 sm:py-10 md:py-12 border-b border-[rgba(12,12,12,0.15)] last:border-b-0 gap-6 md:gap-12 lg:gap-20"
+            key={service.number || index} 
+            delay={index * 0.1}
           >
-            <div className="text-[#0C0C0C] font-black text-[clamp(3rem,10vw,140px)] leading-none md:w-1/4 shrink-0">
-              {service.num}
-            </div>
-            <div className="flex flex-col gap-2 md:gap-4 flex-1">
-              <h3 className="text-[#0C0C0C] font-medium uppercase text-[clamp(1rem,2.2vw,2.1rem)] leading-tight">
-                {service.name}
-              </h3>
-              <p className="text-[#0C0C0C] font-light leading-relaxed max-w-2xl text-[clamp(0.85rem,1.6vw,1.25rem)] opacity-60">
-                {service.desc}
-              </p>
-            </div>
+            <Link 
+              to={`/services/${service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+              className="group flex flex-col md:flex-row items-start md:items-center py-8 sm:py-10 md:py-12 border-b border-[rgba(12,12,12,0.15)] last:border-b-0 gap-6 md:gap-12 lg:gap-20 transition-all duration-300 hover:pl-4 sm:hover:pl-8 cursor-pointer relative"
+            >
+              <div className="text-[#0C0C0C] font-black text-[clamp(3rem,10vw,140px)] leading-none md:w-1/4 shrink-0 transition-colors group-hover:text-[#B600A8]">
+                {service.number}
+              </div>
+              <div className="flex flex-col gap-2 md:gap-4 flex-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[#0C0C0C] font-medium uppercase text-[clamp(1rem,2.2vw,2.1rem)] leading-tight">
+                    {service.name}
+                  </h3>
+                  <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8 text-[#0C0C0C] opacity-0 -translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300" />
+                </div>
+                <p className="text-[#0C0C0C] font-light leading-relaxed max-w-2xl text-[clamp(0.85rem,1.6vw,1.25rem)] opacity-60">
+                  {service.description}
+                </p>
+              </div>
+            </Link>
           </FadeIn>
         ))}
       </div>
