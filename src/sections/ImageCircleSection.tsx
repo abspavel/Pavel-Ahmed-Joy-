@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
-import { motion, useAnimationFrame, useMotionValue, useTransform, useInView, MotionValue } from 'motion/react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useAnimationFrame, useMotionValue, useTransform, useInView, MotionValue, AnimatePresence } from 'motion/react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { X } from 'lucide-react';
 
 const FALLBACK_OUTER = Array.from({ length: 21 }, (_, i) => ({ id: `outer-${i}`, image_url: `/photo${i + 1}.jpg`, ring: 'outer' }));
 const FALLBACK_INNER = Array.from({ length: 7 }, (_, i) => ({ id: `inner-${i}`, image_url: `/photo${i + 22}.jpg`, ring: 'inner' }));
@@ -9,6 +10,7 @@ export function ImageCircleSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(containerRef);
   const { data, loading } = usePortfolioData('circle_photos');
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   const outerPhotos = data ? data.filter(p => p.ring === 'outer') : [];
   const innerPhotos = data ? data.filter(p => p.ring === 'inner') : [];
@@ -16,14 +18,24 @@ export function ImageCircleSection() {
   const outerAngle = useMotionValue(0);
   const innerAngle = useMotionValue(0);
 
-  // Outer ring: 60s per rotation (6 degrees per second)
-  // Inner ring: 40s per rotation (9 degrees per second, opposite direction)
+  // Outer ring: ~36s per rotation (10 degrees per second)
+  // Inner ring: ~24s per rotation (15 degrees per second, opposite direction)
   useAnimationFrame((t, delta) => {
-    if (isInView) {
-      if (outerPhotos.length > 0) outerAngle.set(outerAngle.get() + (delta / 1000) * 6);
-      if (innerPhotos.length > 0) innerAngle.set(innerAngle.get() - (delta / 1000) * 9);
+    if (isInView && !selectedPhoto) {
+      if (outerPhotos.length > 0) outerAngle.set(outerAngle.get() + (delta / 1000) * 10);
+      if (innerPhotos.length > 0) innerAngle.set(innerAngle.get() - (delta / 1000) * 15);
     }
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedPhoto(null);
+    };
+    if (selectedPhoto) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedPhoto]);
 
   return (
     <section 
@@ -46,6 +58,7 @@ export function ImageCircleSection() {
                 angle={i * (360 / outerPhotos.length)}
                 ringAngle={outerAngle}
                 sizeClasses="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24"
+                onClick={() => setSelectedPhoto(photo.image_url)}
               />
             ))}
           </motion.div>
@@ -64,12 +77,47 @@ export function ImageCircleSection() {
                 angle={i * (360 / innerPhotos.length)}
                 ringAngle={innerAngle}
                 sizeClasses="w-14 h-20 sm:w-20 sm:h-28 md:w-24 md:h-32"
+                onClick={() => setSelectedPhoto(photo.image_url)}
               />
             ))}
           </motion.div>
         )}
 
       </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedPhoto && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setSelectedPhoto(null)}
+          >
+            <button 
+              className="absolute top-6 right-6 text-[#D7E2EA] hover:text-white transition-colors z-[101] bg-black/50 p-2 rounded-full"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPhoto(null);
+              }}
+            >
+              <X className="w-6 h-6 sm:w-8 sm:h-8" />
+            </button>
+            <motion.img 
+              src={selectedPhoto}
+              alt="Preview"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="max-w-[90vw] max-h-[85vh] object-contain rounded-2xl shadow-2xl pointer-events-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
@@ -78,12 +126,14 @@ function CircleItem({
   photoUrl,
   angle,
   ringAngle,
-  sizeClasses
+  sizeClasses,
+  onClick
 }: {
   photoUrl: string;
   angle: number;
   ringAngle: MotionValue<number>;
   sizeClasses: string;
+  onClick: () => void;
 }) {
   // Counter-rotate the item to keep the photo completely upright at all times.
   // It counteracts its fixed angle position and the dynamic rotation of its parent ring.
@@ -97,13 +147,14 @@ function CircleItem({
       }}
     >
       <motion.div
-        className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#181818] border-2 border-[#D7E2EA]/30 rounded-xl will-change-transform pointer-events-auto shadow-xl ${sizeClasses}`}
+        className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#181818] border-2 border-[#D7E2EA]/30 rounded-xl will-change-transform pointer-events-auto shadow-xl cursor-pointer hover:border-[#D7E2EA]/80 transition-colors ${sizeClasses}`}
         style={{ rotate: counterRotation }}
+        onClick={onClick}
       >
         <img
           src={photoUrl}
           alt="Gallery"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-center pointer-events-none"
           onError={(e) => { 
             // Fallback for missing placeholder images
             e.currentTarget.style.opacity = '0'; 
