@@ -71,7 +71,7 @@ export function RoundCarousel() {
                 className="absolute inset-0 rounded-2xl overflow-hidden bg-[#181818] border border-[rgba(215,226,234,0.1)] flex items-center justify-center text-gray-600" 
                 style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
               >
-                <img src={card.image_url} alt={card.caption || `Photo ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                <img src={card.image_url} alt={card.caption || `Photo ${i + 1}`} loading="lazy" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 <span className="absolute text-xs opacity-50 text-center px-2">{card.caption || 'IMG'}</span>
               </div>
               

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { compressImage } from '../../utils/imageCompression';
 
 export function ProjectsAdmin() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -60,21 +61,26 @@ export function ProjectsAdmin() {
     setUploadingField(`${id}-${field}`);
     setMsg({ text: '', type: '' });
     
-    const ext = file.name.split('.').pop();
-    const path = `projects/${Math.random()}.${ext}`;
-    
-    const { error } = await supabase.storage.from('portfolio-media').upload(path, file);
-    if (!error) {
-      const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
-      const { error: updateErr } = await supabase.from('projects').update({ [field]: publicUrl }).eq('id', id);
-      if (updateErr) {
-        setMsg({ text: `Error saving: ${updateErr.message}`, type: 'error' });
+    try {
+      const compressedFile = await compressImage(file, 1600);
+      const ext = compressedFile.name.split('.').pop();
+      const path = `projects/${Math.random()}.${ext}`;
+      
+      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile);
+      if (!error) {
+        const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
+        const { error: updateErr } = await supabase.from('projects').update({ [field]: publicUrl }).eq('id', id);
+        if (updateErr) {
+          setMsg({ text: `Error saving: ${updateErr.message}`, type: 'error' });
+        } else {
+          setMsg({ text: 'Image uploaded successfully!', type: 'success' });
+          fetchProjects();
+        }
       } else {
-        setMsg({ text: 'Image uploaded successfully!', type: 'success' });
-        fetchProjects();
+        setMsg({ text: `Upload error: ${error.message}`, type: 'error' });
       }
-    } else {
-      setMsg({ text: `Upload error: ${error.message}`, type: 'error' });
+    } catch (err: any) {
+      setMsg({ text: `Error processing image: ${err.message}`, type: 'error' });
     }
     setUploadingField(null);
     setTimeout(() => setMsg({ text: '', type: '' }), 4000);

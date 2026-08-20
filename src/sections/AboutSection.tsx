@@ -6,7 +6,7 @@ import { usePortfolioData } from '../hooks/usePortfolioData';
 
 export function AboutSection() {
   const { data, loading } = usePortfolioData('about_content');
-  const about = data?.[0] || { heading: 'About me', paragraph_text: "I'm Pavel Ahmed Joy, a web developer focused on building clean, responsive, and user-friendly websites. I truly enjoy turning ideas into fast, functional, and well-crafted digital experiences. Let's build something incredible together!" };
+  const about = data?.[0] || { heading: 'About me', paragraph_text: "I'm Pavel Ahmed Joy, a passionate web developer with 5+ years of experience building clean, responsive, and high-performing websites. I've successfully completed 250+ projects, ranging from business websites to full-scale web applications, always focused on clean code, modern design, and great user experience. I love turning ideas into fast, functional, and visually striking digital products. Let's build something incredible together!" };
 
   return (
     <section id="about" className="min-h-screen relative flex flex-col items-center justify-center px-5 sm:px-8 md:px-10 py-20 overflow-hidden">
@@ -44,28 +44,28 @@ export function AboutSection() {
         />
       </FadeIn>
 
-      <div className="relative z-10 flex flex-col items-center">
+      <div className="relative z-10 flex flex-col items-center gap-12 sm:gap-16 md:gap-20">
         <FadeIn delay={0} y={40}>
           <h2 className="hero-heading font-black uppercase leading-none tracking-tight text-center text-[clamp(3rem,12vw,160px)]">
             {about.heading}
           </h2>
         </FadeIn>
 
-        <div className="mt-10 sm:mt-14 md:mt-16 text-center">
+        <div className="text-center w-full flex justify-center px-4">
           <AnimatedText 
             text={about.paragraph_text}
-            className="text-[#D7E2EA] font-medium leading-relaxed max-w-[560px] text-[clamp(1rem,2vw,1.35rem)]"
+            className="text-[#D7E2EA] font-medium leading-relaxed max-w-[720px] text-[clamp(1.15rem,2.6vw,1.75rem)]"
           />
         </div>
 
         {/* 3D Round Carousel */}
-        <div className="mt-12 sm:mt-16 md:mt-20 w-full max-w-[100vw] overflow-visible">
+        <div className="w-full max-w-[100vw] overflow-visible">
           <FadeIn delay={0.4} y={50}>
             <RoundCarousel />
           </FadeIn>
         </div>
 
-        <div className="mt-10 sm:mt-14 md:mt-16">
+        <div>
           <FadeIn delay={0.2} y={30}>
             <ContactButton />
           </FadeIn>

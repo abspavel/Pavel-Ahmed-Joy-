@@ -1,13 +1,17 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { HeroSection } from './sections/HeroSection';
-import { MarqueeSection } from './sections/MarqueeSection';
-import { ImageCircleSection } from './sections/ImageCircleSection';
-import { AboutSection } from './sections/AboutSection';
-import { ServicesSection } from './sections/ServicesSection';
-import { ProjectsSection } from './sections/ProjectsSection';
-import { TestimonialsSection } from './sections/TestimonialsSection';
-import { FooterSection } from './sections/FooterSection';
+
+const MarqueeSection = React.lazy(() => import('./sections/MarqueeSection').then(module => ({ default: module.MarqueeSection })));
+const AchievementsSection = React.lazy(() => import('./sections/AchievementsSection').then(module => ({ default: module.AchievementsSection })));
+const ImageCircleSection = React.lazy(() => import('./sections/ImageCircleSection').then(module => ({ default: module.ImageCircleSection })));
+const AboutSection = React.lazy(() => import('./sections/AboutSection').then(module => ({ default: module.AboutSection })));
+const SkillsCertificationsSection = React.lazy(() => import('./sections/SkillsCertificationsSection').then(module => ({ default: module.SkillsCertificationsSection })));
+const ServicesSection = React.lazy(() => import('./sections/ServicesSection').then(module => ({ default: module.ServicesSection })));
+const ProjectsSection = React.lazy(() => import('./sections/ProjectsSection').then(module => ({ default: module.ProjectsSection })));
+const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSection').then(module => ({ default: module.TestimonialsSection })));
+const FooterSection = React.lazy(() => import('./sections/FooterSection').then(module => ({ default: module.FooterSection })));
+
 import { AdminRouter } from './admin/AdminRouter';
 import { ContactPage } from './pages/ContactPage';
 import { ServiceDetailPage } from './pages/ServiceDetailPage';
@@ -25,17 +29,30 @@ function ScrollToTop() {
   return null;
 }
 
+// Simple fallback skeleton for lazy loaded sections
+function SectionSkeleton() {
+  return (
+    <div className="w-full h-[60vh] bg-[#0C0C0C] flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-[#D7E2EA]/20 border-t-[#D7E2EA] animate-spin"></div>
+    </div>
+  );
+}
+
 function PublicSite() {
   return (
     <main className="main-wrapper flex flex-col min-h-screen selection:bg-[#BBCCD7] selection:text-[#0C0C0C]">
       <HeroSection />
-      <MarqueeSection />
-      <ImageCircleSection />
-      <AboutSection />
-      <ServicesSection />
-      <ProjectsSection />
-      <TestimonialsSection />
-      <FooterSection />
+      <Suspense fallback={<SectionSkeleton />}>
+        <MarqueeSection />
+        <AchievementsSection />
+        <ImageCircleSection />
+        <AboutSection />
+        <SkillsCertificationsSection />
+        <ServicesSection />
+        <ProjectsSection />
+        <TestimonialsSection />
+        <FooterSection />
+      </Suspense>
     </main>
   );
 }

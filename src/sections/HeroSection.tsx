@@ -117,6 +117,8 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
           <img
             src={imageUrl}
             alt="Joy - 3D Creator"
+            loading="eager"
+            fetchPriority="high"
             className="w-full h-auto object-contain pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
             style={{
               imageRendering: 'high-quality',

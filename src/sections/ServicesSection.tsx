@@ -66,7 +66,7 @@ export function ServicesSection() {
                   <h3 className="text-[#0C0C0C] font-medium uppercase text-[clamp(1rem,2.2vw,2.1rem)] leading-tight">
                     {service.name}
                   </h3>
-                  <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8 text-[#0C0C0C] opacity-0 -translate-x-4 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300" />
+                  <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8 text-[#0C0C0C] opacity-60 sm:opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-200 shrink-0 ml-4" />
                 </div>
                 <p className="text-[#0C0C0C] font-light leading-relaxed max-w-2xl text-[clamp(0.85rem,1.6vw,1.25rem)] opacity-60">
                   {service.description}

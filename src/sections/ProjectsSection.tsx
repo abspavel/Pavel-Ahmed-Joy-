@@ -160,7 +160,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <motion.img style={{ y: y1, scale: 1.15 }} src={project.col1_image1_url} alt={`${project.name} preview 1`} className="w-full h-full object-cover" />
+                  <motion.img loading="lazy" style={{ y: y1, scale: 1.15 }} src={project.col1_image1_url} alt={`${project.name} preview 1`} className="w-full h-full object-cover" />
                 </motion.div>
               </div>
 
@@ -172,7 +172,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
                   className="absolute inset-0 w-full h-full"
                 >
-                  <motion.img style={{ y: y2, scale: 1.15 }} src={project.col1_image2_url} alt={`${project.name} preview 2`} className="w-full h-full object-cover" />
+                  <motion.img loading="lazy" style={{ y: y2, scale: 1.15 }} src={project.col1_image2_url} alt={`${project.name} preview 2`} className="w-full h-full object-cover" />
                 </motion.div>
               </div>
 
@@ -186,7 +186,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                 transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
                 className="absolute inset-0 w-full h-full"
               >
-                <motion.img style={{ y: y3, scale: 1.1 }} src={project.col2_image_url} alt={`${project.name} preview 3`} className="w-full h-full object-cover" />
+                <motion.img loading="lazy" style={{ y: y3, scale: 1.1 }} src={project.col2_image_url} alt={`${project.name} preview 3`} className="w-full h-full object-cover" />
               </motion.div>
             </div>
             

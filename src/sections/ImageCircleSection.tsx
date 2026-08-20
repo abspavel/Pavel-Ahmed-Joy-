@@ -154,6 +154,7 @@ function CircleItem({
         <img
           src={photoUrl}
           alt="Gallery"
+          loading="lazy"
           className="w-full h-full object-cover object-center pointer-events-none"
           onError={(e) => { 
             // Fallback for missing placeholder images

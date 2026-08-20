@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { compressImage } from '../../utils/imageCompression';
 
 export function HeroAdmin() {
   const [data, setData] = useState<any>({ heading_line1: '', heading_line2: '', tagline_text: '', portrait_image_url: '' });
@@ -33,25 +34,30 @@ export function HeroAdmin() {
     setUploadingImage(true);
     setMsg({ text: '', type: '' });
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `hero/${fileName}`;
-    const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(filePath, file);
-    
-    if (!uploadError) {
-      const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(filePath);
+    try {
+      const compressedFile = await compressImage(file, 1600);
+      const fileExt = compressedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `hero/${fileName}`;
+      const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(filePath, compressedFile);
       
-      // Update the database row directly
-      const { error: updateError } = await supabase.from('hero_content').update({ portrait_image_url: publicUrl }).eq('id', 1);
-      
-      if (!updateError) {
-        setData({ ...data, portrait_image_url: publicUrl });
-        setMsg({ text: 'Image uploaded successfully!', type: 'success' });
+      if (!uploadError) {
+        const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(filePath);
+        
+        // Update the database row directly
+        const { error: updateError } = await supabase.from('hero_content').update({ portrait_image_url: publicUrl }).eq('id', 1);
+        
+        if (!updateError) {
+          setData({ ...data, portrait_image_url: publicUrl });
+          setMsg({ text: 'Image uploaded successfully!', type: 'success' });
+        } else {
+          setMsg({ text: `Database update error: ${updateError.message}`, type: 'error' });
+        }
       } else {
-        setMsg({ text: `Database update error: ${updateError.message}`, type: 'error' });
+        setMsg({ text: `Error uploading image: ${uploadError.message}`, type: 'error' });
       }
-    } else {
-      setMsg({ text: `Error uploading image: ${uploadError.message}`, type: 'error' });
+    } catch (err: any) {
+      setMsg({ text: `Error processing image: ${err.message}`, type: 'error' });
     }
     setUploadingImage(false);
     setTimeout(() => setMsg({ text: '', type: '' }), 4000);

@@ -8,6 +8,9 @@ import { CirclePhotosAdmin } from './components/CirclePhotosAdmin';
 import { CarouselPhotosAdmin } from './components/CarouselPhotosAdmin';
 import { TestimonialsAdmin } from './components/TestimonialsAdmin';
 import { MessagesAdmin } from './components/MessagesAdmin';
+import { AchievementsAdmin } from './components/AchievementsAdmin';
+import { SkillsAdmin } from './components/SkillsAdmin';
+import { CertificationsAdmin } from './components/CertificationsAdmin';
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState('Hero');
@@ -16,7 +19,7 @@ export function Dashboard() {
     await supabase.auth.signOut();
   };
 
-  const tabs = ['Hero', 'About', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages'];
+  const tabs = ['Hero', 'About', 'Achievements', 'Skills', 'Certifications', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages'];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -43,6 +46,9 @@ export function Dashboard() {
         <main className="flex-1 bg-white shadow rounded-lg p-6 overflow-x-auto text-gray-900">
           {activeTab === 'Hero' && <HeroAdmin />}
           {activeTab === 'About' && <AboutAdmin />}
+          {activeTab === 'Achievements' && <AchievementsAdmin />}
+          {activeTab === 'Skills' && <SkillsAdmin />}
+          {activeTab === 'Certifications' && <CertificationsAdmin />}
           {activeTab === 'Projects' && <ProjectsAdmin />}
           {activeTab === 'Services' && <ServicesAdmin />}
           {activeTab === 'Circle Photos' && <CirclePhotosAdmin />}
